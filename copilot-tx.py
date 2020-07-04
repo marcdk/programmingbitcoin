@@ -1,15 +1,16 @@
-from bitcoin import ecc
-from bitcoin import tx
-from bitcoin import helper
-from bitcoin import script
-from io import BytesIO
+import bitcoin
+
+from bitcoin.ecc import PrivateKey
+from bitcoin.tx import Tx, TxIn, TxOut
+from bitcoin.helper import hash256, little_endian_to_int, decode_base58
+from bitcoin.script import p2pkh_script
 
 # Task: Send BTC
 # We'll rather use tBTC :P
 
 # Generate two (private) keys & addresses
-secret = helper.little_endian_to_int(helper.hash256(b'Some kind of seed like BIP32'))
-private_key = ecc.PrivateKey(secret)
+secret = little_endian_to_int(hash256(b'Some kind of seed like BIP32'))
+private_key = PrivateKey(secret)
 
 print("Marc-controlled address receiving tBTC from faucet")
 print(private_key.point.address(testnet=True))
@@ -28,18 +29,18 @@ tx_ins = []
 
 prev_tx = bytes.fromhex('4e7f585ff16f6364e521feea2eab29a803274077192c5ed26eea1e566035281a')
 prev_index = 7
-tx_ins.append(tx.TxIn(prev_tx, prev_index))
+tx_ins.append(TxIn(prev_tx, prev_index))
 
 input_amount = tx_ins[0].value(testnet=True)
 
 target_amount = input_amount - 1000
-target_h160 = helper.decode_base58('mm7gA5bREc1yN4U6huxcqAnYqn11UynZLh')
-target_script = script.p2pkh_script(target_h160)
+target_h160 = decode_base58('mm7gA5bREc1yN4U6huxcqAnYqn11UynZLh')
+target_script = p2pkh_script(target_h160)
 
 tx_outs = []
-tx_outs.append(tx.TxOut(amount=target_amount, script_pubkey=target_script))
+tx_outs.append(TxOut(amount=target_amount, script_pubkey=target_script))
 
-new_tx = tx.Tx(1, tx_ins, tx_outs, 0, True)
+new_tx = Tx(1, tx_ins, tx_outs, 0, True)
 new_tx.sign_input(0, private_key)
 
 print(new_tx)

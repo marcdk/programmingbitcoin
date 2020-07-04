@@ -1,7 +1,9 @@
-from bitcoin import ecc
-from bitcoin import tx
-from bitcoin import helper
-from bitcoin import script
+import bitcoin
+
+from bitcoin.ecc import S256Point, Signature
+from bitcoin.tx import Tx, TxIn, SIGHASH_ALL
+from bitcoin.helper import encode_varint, int_to_little_endian, hash256
+from bitcoin.script import Script
 from io import BytesIO
 
 ############
@@ -28,39 +30,37 @@ hex_der = '3045022100da6bee3c93766232079a01639d07fa869598749729ae323eab8eef53577
 hex_redeem_script = '475221022626e955ea6ea6d98850c994f9107b036b1334f18ca8830bfff1295d21cfdb702103b287eaf122eea69030a0e9feed096bed8045c8b98bec453e1ffac7fbdbd4bb7152ae'
 sec = bytes.fromhex(hex_sec)
 der = bytes.fromhex(hex_der)
-redeem_script = script.Script.parse(BytesIO(bytes.fromhex(hex_redeem_script)))
+redeem_script = Script.parse(BytesIO(bytes.fromhex(hex_redeem_script)))
 stream = BytesIO(bytes.fromhex(hex_tx))
 
-tx_obj = tx.Tx.parse(stream)
+tx_obj = Tx.parse(stream)
 
 # 1. Version
-s = helper.int_to_little_endian(tx_obj.version, 4)
+s = int_to_little_endian(tx_obj.version, 4)
 
 # 2. Inputs
-s += helper.encode_varint(len(tx_obj.tx_ins))
+s += encode_varint(len(tx_obj.tx_ins))
 tx_in0 = tx_obj.tx_ins[0]
 # 2.1 Previous transaction ID
 # 2.2 Previous transaction index
 # 2.3 ScriptSig
 # 2.4 Sequence
-s += tx.TxIn(tx_in0.prev_tx, tx_in0.prev_index, redeem_script, tx_in0.sequence).serialize()
+s += TxIn(tx_in0.prev_tx, tx_in0.prev_index, redeem_script, tx_in0.sequence).serialize()
 
 # 3. Outputs
-s += helper.encode_varint(len(tx_obj.tx_outs))
+s += encode_varint(len(tx_obj.tx_outs))
 for tx_out in tx_obj.tx_outs:
     s += tx_out.serialize()
 
 # 4. Locktime
-s += helper.int_to_little_endian(tx_obj.locktime, 4)
-s += helper.int_to_little_endian(tx.SIGHASH_ALL, 4)
+s += int_to_little_endian(tx_obj.locktime, 4)
+s += int_to_little_endian(SIGHASH_ALL, 4)
 
-z = int.from_bytes(helper.hash256(s), 'big')
-point = ecc.S256Point.parse(sec)
-sig = ecc.Signature.parse(der)
+z = int.from_bytes(hash256(s), 'big')
+point = S256Point.parse(sec)
+sig = Signature.parse(der)
 print(point.verify(z, sig))
 
 ############
 # Exercise 5
 ############
-
-
