@@ -4,3 +4,5 @@
 book/
 
 bitcoin/__pycache__/
+
+.venv/
