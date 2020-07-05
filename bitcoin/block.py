@@ -35,12 +35,6 @@ class Block:
 
     def serialize(self):
         '''Returns the 80 byte block header'''
-        # version - 4 bytes, little endian
-        # prev_block - 32 bytes, little endian
-        # merkle_root - 32 bytes, little endian
-        # timestamp - 4 bytes, little endian
-        # bits - 4 bytes
-        # nonce - 4 bytes
         result =  int_to_little_endian(self.version, 4)
         result += self.prev_block[::-1]
         result += self.merkle_root[::-1]
@@ -52,10 +46,8 @@ class Block:
 
     def hash(self):
         '''Returns the hash256 interpreted little endian of the block'''
-        # serialize
-        # hash256
-        # reverse
-        raise NotImplementedError
+        bytes = self.serialize()
+        return hash256(bytes)[::-1]
 
     def bip9(self):
         '''Returns whether this block is signaling readiness for BIP9'''
