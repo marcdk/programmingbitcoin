@@ -1,13 +1,27 @@
+# Chapter 9
 
-
-=========
-Chapter 9
-=========
-
-BIP0034
+## BIP0034
 - not really sure why it's necessary to add the block height to coinbase tx
 - something to do with MASF
 https://bitcointalk.org/index.php?topic=92558.0
 https://en.bitcoin.it/wiki/BIP_0034
+
+## Block Headers
+- Blocks are batches of transactions
+- Block headers are metadata about transactions in the block
+-- Version                          4  bytes  LE
+-- Previous Block ID                32 bytes  LE
+-- Merkel Root                      32 bytes  LE
+-- Timestamp                        4  bytes  LE
+-- bits                             4  bytes  LE
+-- Nonce (Number used only once)    4  bytes  LE
+                                    ============
+                                    80 bytes
+
+- Block height at 07:50 UTC+02:00 05/07/2020, is 637769
+- Thus total block header size is 637769 * 80b / 1024^2 ~ 48.65MB
+- Block header does not container block ID of itself - block ID is a the hash256 of the block header, interpretted in LE
+- ** Not sure why block ID starts with so many zeros - it's simply the output of a hash256, which I expect to look random (not pattern of zeros)
+- 
 
 
