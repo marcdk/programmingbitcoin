@@ -41,7 +41,14 @@ class Block:
         # timestamp - 4 bytes, little endian
         # bits - 4 bytes
         # nonce - 4 bytes
-        raise NotImplementedError
+        result =  int_to_little_endian(self.version, 4)
+        result += self.prev_block[::-1]
+        result += self.merkle_root[::-1]
+        result += int_to_little_endian(self.timestamp, 4)
+        result += self.bits
+        result += self.nonce
+
+        return result
 
     def hash(self):
         '''Returns the hash256 interpreted little endian of the block'''
