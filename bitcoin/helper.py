@@ -122,6 +122,14 @@ def h160_to_p2sh_address(h160, testnet=False):
         prefix = b'\x05'
     return encode_base58_checksum(prefix + h160)
 
+def bits_to_target(bits):
+    '''Turns bits into a target (large 256-bit integer)'''
+    # last byte is exponent
+    # the first three bytes are the coefficient in little endian
+    # the formula is:
+    # coefficient * 256**(exponent-3)
+    raise NotImplementedError
+
 
 class HelperTest(TestCase):
 
