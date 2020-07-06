@@ -20,8 +20,13 @@ https://en.bitcoin.it/wiki/BIP_0034
 
 - Block height at 07:50 UTC+02:00 05/07/2020, is 637769
 - Thus total block header size is 637769 * 80b / 1024^2 ~ 48.65MB
-- Block header does not container block ID of itself - block ID is a the hash256 of the block header, interpretted in LE
-- ** Not sure why block ID starts with so many zeros - it's simply the output of a hash256, which I expect to look random (not pattern of zeros)
-- 
-
+- Block header does not container block ID of itself - block ID is the hash256 of the block header, interpreted in LE
+? Not sure why block ID starts with so many zeros - it's simply the output of a hash256, which I expect to look random (not pattern of zeros)
+ 
+## Version
+- Originally intended for use by a miner to signal readiness for a particular feature
+- e.g v2 signalled readiness for BIP0034, v3 for BIP0066, and v4 for BIP0065 - however only a single set of features can be signalled (not an arbitrary choice)
+- Solution proposed in BIP0009 to set first 3 bits to 001, and use remaining 29 bits to signal readiness for softforks (or features ?) 
+- BIP0009 proposes that a certain percentage of all previous blocks in a given 2016 block epoch signal readiness for a softfork in the maner (usally 95% of blocks, BIP0091 required on 80%)
+? So signal bits are 'reset' after the epoch ?
 
