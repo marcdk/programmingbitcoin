@@ -13,7 +13,7 @@ https://en.bitcoin.it/wiki/BIP_0034
 -- Previous Block ID                32 bytes  LE
 -- Merkel Root                      32 bytes  LE
 -- Timestamp                        4  bytes  LE
--- bits                             4  bytes  LE
+-- Bits                             4  bytes  LE
 -- Nonce (Number used only once)    4  bytes  LE
                                     ============
                                     80 bytes
@@ -29,4 +29,21 @@ https://en.bitcoin.it/wiki/BIP_0034
 - Solution proposed in BIP0009 to set first 3 bits to 001, and use remaining 29 bits to signal readiness for softforks (or features ?) 
 - BIP0009 proposes that a certain percentage of all previous blocks in a given 2016 block epoch signal readiness for a softfork in the maner (usally 95% of blocks, BIP0091 required on 80%)
 ? So signal bits are 'reset' after the epoch ?
+
+## Previous Block ID
+? Ends in a bunch of 00 bytes (see last point in `Block Headers` above)
+
+## Merkle Root
+- Fingerprint (hash) of ordered list of transactions
+- Used in Simplified Payment Verification (SPV)
+
+## Timestamp
+- Unix timestamp (of when block was mined ?)
+- Interpreted as unsigned int, and will overflow in the year 2106
+
+## Bits
+- Encodes proof of work required in this block (TBD)
+
+## Nonce
+- 'Number used only once` - This is what is sought by the miner 
 
