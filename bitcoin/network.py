@@ -69,6 +69,8 @@ class NetworkEnvelope:
         s += hash256(self.payload)[:4]
         s += self.payload
 
+        return s
+
     def stream(self):
         '''Returns a stream for parsing the payload'''
         return BytesIO(self.payload)
@@ -223,11 +225,12 @@ class GetHeadersMessage:
 
     def serialize(self):
         '''Serialize this message to send over the network'''
-        # protocol version is 4 bytes little-endian
-        # number of hashes is a varint
-        # start block is in little-endian
-        # end block is also in little-endian
-        raise NotImplementedError
+        result = int_to_little_endian(self.version, 4)
+        result += encode_varint(self.num_hashes)
+        result += self.start_block[::-1]
+        result += self.end_block[::-1]
+
+        return result
 
 
 class GetHeadersMessageTest(TestCase):
@@ -288,10 +291,9 @@ class SimpleNode:
     def handshake(self):
         '''Do a handshake with the other node.
         Handshake is sending a version message and getting a verack back.'''
-        # create a version message
-        # send the command
-        # wait for a verack message
-        raise NotImplementedError
+        version = VersionMessage()
+        self.send(version)
+        self.wait_for(VerAckMessage)
     # tag::source4[]
 
     def send(self, message):  # <1>
