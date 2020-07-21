@@ -172,7 +172,9 @@ def calculate_new_bits(previous_bits, time_differential):
     # convert the new target to bits
     return target_to_bits(new_target)
 
-    return target
+def merkle_parent(hash1, hash2):
+    '''Takes the binary hashes and calculates the hash256'''
+    return hash256(hash1 + hash2)
 
 class HelperTest(TestCase):
 
