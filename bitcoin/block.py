@@ -10,6 +10,7 @@ from .helper import (
 )
 
 GENESIS_BLOCK = bytes.fromhex('0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c')
+TESTNET_GENESIS_BLOCK = bytes.fromhex('0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4adae5494dffff001d1aa4ae18')
 LOWEST_BITS = bytes.fromhex('ffff001d')
 
 # tag::source1[]
@@ -22,7 +23,7 @@ class Block:
         self.timestamp = timestamp
         self.bits = bits
         self.nonce = nonce
-    # end::source1[]
+        self.tx_hashes = tx_hashes
 
     @classmethod
     def parse(cls, s):
@@ -44,7 +45,6 @@ class Block:
         result += int_to_little_endian(self.timestamp, 4)
         result += self.bits
         result += self.nonce
-
         return result
 
     def hash(self):
@@ -63,6 +63,7 @@ class Block:
     def bip141(self):
         '''Returns whether this block is signaling readiness for BIP141'''
         return (self.version >> 1) & 0b1 == 0b1
+        return self.version >> 1 & 1 == 1
 
     def target(self):
         '''Returns the proof-of-work target based on the bits'''
@@ -72,23 +73,29 @@ class Block:
         '''Returns the block difficulty based on the bits'''
         # note difficulty is (target of lowest difficulty) / (self's target)
         # lowest difficulty has bits that equal 0xffff001d
-        raise NotImplementedError
+        lowest = 0xffff * 256**(0x1d - 3)
+        return lowest / self.target()
 
     def check_pow(self):
         '''Returns whether this block satisfies proof of work'''
         # get the hash256 of the serialization of this block
+        h256 = hash256(self.serialize())
         # interpret this hash as a little-endian number
+        proof = little_endian_to_int(h256)
         # return whether this integer is less than the target
-        raise NotImplementedError
+        return proof < self.target()
 
     def validate_merkle_root(self):
         '''Gets the merkle root of the tx_hashes and checks that it's
         the same as the merkle root of this block.
         '''
-        hashes_little_endian = [hash[::-1] for hash in self.tx_hashes]
-        calculated_merkle_root = merkle_root(hashes_little_endian)[::-1]
+        # reverse each item in self.tx_hashes
+        hashes = [h[::-1] for h in self.tx_hashes]
+        # compute the Merkle Root and reverse
+        root = merkle_root(hashes)[::-1]
+        # return whether self.merkle_root is the same
+        return root == self.merkle_root
 
-        return self.merkle_root == calculated_merkle_root
 
 class BlockTest(TestCase):
 

@@ -162,7 +162,8 @@ class MerkleTreeTest(TestCase):
 
 
 class MerkleBlock:
-
+    command = b'merkleblock'
+    
     def __init__(self, version, prev_block, merkle_root, timestamp, bits, nonce, total, hashes, flags):
         self.version = version
         self.prev_block = prev_block
